@@ -1,6 +1,7 @@
 var checkers = (function() {
     var ROWS = 8,
         COLS = 8,
+        playerTurn = 0,
         map = [ [2,0,2,0,2,0,2,0],
         		[0,2,0,2,0,2,0,2],
         		[2,0,2,0,2,0,2,0],
@@ -65,34 +66,36 @@ var checkers = (function() {
     var move = function() {
 		var selectedMarker,
 			startingTile;
-
+		
 		$('.marker').click(function(e) {
 			selectedMarker = this;
 			startingTile = $(this).parent();
+			$('.selected-tile').removeClass('selected-tile');
 			startingTile.toggleClass('selected-tile');
 			e.stopPropagation();
 
 		});
 
 		$('.tile').click(function() {
-			if (selectedMarker && validMove(selectedMarker, this)) {
+			redsTurn = (playerTurn % 2 == 0) ? true : false;
+			if (selectedMarker && validMove(selectedMarker, this, redsTurn)) {
 				$(selectedMarker).appendTo(this);
 				startingTile.removeClass('selected-tile');
 				var position = $(this).data('position');
 				updateBoard(selectedMarker, position);
+				playerTurn++;
 			}
 		});
     }
 
-    var validMove = function(selectedMarker, tile) {
+    var validMove = function(selectedMarker, tile, redsTurn) {
     	var startingPosition = $(selectedMarker).parent().data('position');
     	var position = $(tile).data('position');
     	var validPosition;
 
-
-    	if ($(selectedMarker).hasClass('red')) {
+    	if ($(selectedMarker).hasClass('red') && redsTurn) {
     		validPosition = startingPosition - 9 === position || startingPosition - 7 === position;
-    	} else if ($(selectedMarker).hasClass('black')) {
+    	} else if ($(selectedMarker).hasClass('black') && !redsTurn) {
     		validPosition = startingPosition + 9 === position || startingPosition + 7 === position;
     	}
 

@@ -65,22 +65,32 @@ var checkers = (function() {
 
     var move = function() {
 		var selectedMarker,
-			startingTile;
+			redsTurn = true;
+
+
+		$(document).click(function(e) {
+			$('.selected-tile').removeClass('selected-tile');
+			selectedMarker = undefined;
+		});
+
 		
 		$('.marker').click(function(e) {
-			selectedMarker = this;
-			startingTile = $(this).parent();
-			$('.selected-tile').removeClass('selected-tile');
-			startingTile.toggleClass('selected-tile');
+			$(selectedMarker).parent().removeClass('selected-tile');
+			if ($(this).hasClass('red') && redsTurn) {
+				selectedMarker = e.target;
+				$(selectedMarker).parent().addClass('selected-tile');
+			} else if ($(this).hasClass('black') && !redsTurn) {
+				selectedMarker = this;
+				$(selectedMarker).parent().addClass('selected-tile');
+			}
 			e.stopPropagation();
-
 		});
 
 		$('.tile').click(function() {
 			redsTurn = (playerTurn % 2 == 0) ? true : false;
 			if (selectedMarker && validMove(selectedMarker, this, redsTurn)) {
 				$(selectedMarker).appendTo(this);
-				startingTile.removeClass('selected-tile');
+				$('.selected-tile').removeClass('selected-tile');
 				var position = $(this).data('position');
 				updateBoard(selectedMarker, position);
 				playerTurn++;
@@ -89,17 +99,33 @@ var checkers = (function() {
     }
 
     var validMove = function(selectedMarker, tile, redsTurn) {
-    	var startingPosition = $(selectedMarker).parent().data('position');
-    	var position = $(tile).data('position');
+    	var initialPosition = $(selectedMarker).parent().data('position');
+    	var targetPosition = $(tile).data('position');
     	var validPosition;
 
     	if ($(selectedMarker).hasClass('red') && redsTurn) {
-    		validPosition = startingPosition - 9 === position || startingPosition - 7 === position;
+    		validPosition = initialPosition - 9 === targetPosition || initialPosition - 7 === targetPosition;
     	} else if ($(selectedMarker).hasClass('black') && !redsTurn) {
-    		validPosition = startingPosition + 9 === position || startingPosition + 7 === position;
+    		validPosition = initialPosition + 9 === targetPosition || initialPosition + 7 === targetPosition;
     	}
 
-    	return $(tile).hasClass('red') && validPosition;
+    	return $(tile).hasClass('red') && $(tile).find('.marker').length === 0 && validPosition;
+    }
+
+    var gameWon = function() {
+    	var playerOneLeft = false, playerTwoLeft = false;
+    	for (var row = 0; row < ROWS; row++) {
+    		for (var col = 0; col < COLS; col++) {
+    			if (map[row][col] === 1) {
+    				playerOneLeft = true;
+    			}
+    			if (map[row][col] === 2) {
+    				playerTwoLeft = true;
+    			}
+    		}
+    	}
+    	console.log('gameWon function finished');
+    	return !(playerOneLeft && playerTwoLeft);
     }
     
     var positionNumber = function(map) {
@@ -114,6 +140,7 @@ var checkers = (function() {
     var play = function() {
         init();
         move();
+        gameWon();
     }
 
     return {

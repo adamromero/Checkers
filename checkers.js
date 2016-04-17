@@ -1,7 +1,10 @@
 var checkers = (function() {
     var ROWS = 8,
         COLS = 8,
-        playerTurn = 0,
+        playerTurn = {
+        	count: 0,
+        	red: true
+        },
         map = [ [2,0,2,0,2,0,2,0],
         		[0,2,0,2,0,2,0,2],
         		[2,0,2,0,2,0,2,0],
@@ -64,11 +67,10 @@ var checkers = (function() {
     }
 
     var move = function() {
-		var selectedMarker,
-			redsTurn = true;
+		var selectedMarker;
 
 
-		$(document).click(function(e) {
+		$(document).click(function() {
 			$('.selected-tile').removeClass('selected-tile');
 			selectedMarker = undefined;
 		});
@@ -76,10 +78,10 @@ var checkers = (function() {
 		
 		$('.marker').click(function(e) {
 			$(selectedMarker).parent().removeClass('selected-tile');
-			if ($(this).hasClass('red') && redsTurn) {
-				selectedMarker = e.target;
+			if ($(this).hasClass('red') && playerTurn.red) {
+				selectedMarker = this;
 				$(selectedMarker).parent().addClass('selected-tile');
-			} else if ($(this).hasClass('black') && !redsTurn) {
+			} else if ($(this).hasClass('black') && !playerTurn.red) {
 				selectedMarker = this;
 				$(selectedMarker).parent().addClass('selected-tile');
 			}
@@ -87,25 +89,25 @@ var checkers = (function() {
 		});
 
 		$('.tile').click(function() {
-			redsTurn = (playerTurn % 2 == 0) ? true : false;
-			if (selectedMarker && validMove(selectedMarker, this, redsTurn)) {
+			if (selectedMarker && validMove(selectedMarker, this)) {
 				$(selectedMarker).appendTo(this);
 				$('.selected-tile').removeClass('selected-tile');
 				var position = $(this).data('position');
 				updateBoard(selectedMarker, position);
-				playerTurn++;
+				playerTurn.count++;
+				playerTurn.red = (playerTurn.count % 2 == 0) ? true : false;
 			}
 		});
     }
 
-    var validMove = function(selectedMarker, tile, redsTurn) {
+    var validMove = function(selectedMarker, tile) {
     	var initialPosition = $(selectedMarker).parent().data('position');
     	var targetPosition = $(tile).data('position');
     	var validPosition;
 
-    	if ($(selectedMarker).hasClass('red') && redsTurn) {
+    	if ($(selectedMarker).hasClass('red') && playerTurn.red) {
     		validPosition = initialPosition - 9 === targetPosition || initialPosition - 7 === targetPosition;
-    	} else if ($(selectedMarker).hasClass('black') && !redsTurn) {
+    	} else if ($(selectedMarker).hasClass('black') && !playerTurn.red) {
     		validPosition = initialPosition + 9 === targetPosition || initialPosition + 7 === targetPosition;
     	}
 
@@ -138,17 +140,17 @@ var checkers = (function() {
     }
 
     var play = function() {
-        init();
-        move();
-        gameWon();
+		move();
     }
 
     return {
+        init: init,
         play: play
     }
 
 })();
 
 $(document).ready(function() {
+    checkers.init();
     checkers.play();
 });

@@ -1,6 +1,12 @@
-#gameboard {
+.gameboard {
 	width: 696px;
 	margin: 0 auto;
+}
+.message {
+	text-align: center;
+    font-size: 1.7rem;
+    margin: 2rem 0;
+    font-weight: bold;
 }
 .row {
 	height: 75px;
@@ -10,6 +16,12 @@
 }
 .black {
 	background-color: black;
+}
+.redfont {
+	color: red;
+}
+.blackfont {
+	color: black;
 }
 .tile {
 	width: 85px;

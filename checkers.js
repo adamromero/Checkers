@@ -16,7 +16,7 @@ var checkers = (function() {
         	  ];
 
     var createBoard = function() {
-        var $board = $('#gameboard'),
+        var $board = $('.gameboard'),
             $tile,
             $row;
 
@@ -69,7 +69,6 @@ var checkers = (function() {
     var move = function() {
 		var selectedMarker;
 
-
 		$(document).click(function() {
 			$('.selected-tile').removeClass('selected-tile');
 			selectedMarker = undefined;
@@ -96,6 +95,8 @@ var checkers = (function() {
 				updateBoard(selectedMarker, position);
 				playerTurn.count++;
 				playerTurn.red = (playerTurn.count % 2 == 0) ? true : false;
+				displayMessage("<div class='" + ((playerTurn.red) ? "redfont" : "blackfont") + "'>" 
+					+ ((playerTurn.red) ? "Red's" : "Black's") + " turn.</div>");
 			}
 		});
     }
@@ -112,6 +113,10 @@ var checkers = (function() {
     	}
 
     	return $(tile).hasClass('red') && $(tile).find('.marker').length === 0 && validPosition;
+    }
+
+    var displayMessage = function(element) {
+    	$('.message').html(element);
     }
 
     var gameWon = function() {
@@ -140,6 +145,7 @@ var checkers = (function() {
     }
 
     var play = function() {
+    	displayMessage("<div class='redfont'>Red's turn.</div>");
 		move();
     }
 

@@ -88,23 +88,68 @@ var checkers = (function() {
 		});
 
 		$('.tile').click(function() {
-			if (selectedMarker && validMove(selectedMarker, this)) {
-				$(selectedMarker).appendTo(this);
-				$('.selected-tile').removeClass('selected-tile');
-				var position = $(this).data('position');
-				updateBoard(selectedMarker, position);
-				playerTurn.count++;
-				playerTurn.red = (playerTurn.count % 2 == 0) ? true : false;
-				displayMessage("<div class='" + ((playerTurn.red) ? "redfont" : "blackfont") + "'>" 
-					+ ((playerTurn.red) ? "Red's" : "Black's") + " turn.</div>");
+			if (selectedMarker) {
+				if (validMove(selectedMarker, this)) {
+					$(selectedMarker).appendTo(this);
+					$('.selected-tile').removeClass('selected-tile');
+					var position = $(this).data('position');
+					updateBoard(selectedMarker, position);
+					switchPlayer();
+				}
+				if (validAttack(selectedMarker, this)) {
+					console.log("can attack");
+					$(selectedMarker).appendTo(this);
+					switchPlayer();
+				}
 			}
 		});
+    }
+
+    var switchPlayer = function() {
+    	playerTurn.count++;
+		playerTurn.red = (playerTurn.count % 2 == 0) ? true : false;
+		displayMessage("<div class='" + ((playerTurn.red) ? "redfont" : "blackfont") + "'>" 
+			+ ((playerTurn.red) ? "Red's" : "Black's") + " turn.</div>");
+    }
+
+    var validAttack = function(selectedMarker, tile) {
+    	var initialPosition = $(selectedMarker).parent().data('position');
+    	var targetPosition = $(tile).data('position');
+    	var oppenentMarker;
+    	var validPosition = false;
+
+    	if ($(selectedMarker).hasClass('red')) {
+    		if (initialPosition - (9 * 2) === targetPosition || initialPosition - (7 * 2) === targetPosition) {
+    			if ($(".tile[data-position='" + (initialPosition - 9) + "']").find('.marker.black').length) {
+    				$(".tile[data-position='" + (initialPosition - 9) + "']").children().removeClass('marker');
+    				validPosition = true;
+    			}
+    			if ($(".tile[data-position='" + (initialPosition - 7) + "']").find('.marker.black').length) {
+    				$(".tile[data-position='" + (initialPosition - 7) + "']").children().removeClass('marker');
+    				validPosition = true;
+    			}
+    		}
+    		
+    	} else if ($(selectedMarker).hasClass('black')) {
+    		if (initialPosition + (9 * 2) === targetPosition || initialPosition + (7 * 2) === targetPosition) {
+    			if ($(".tile[data-position='" + (initialPosition + 9) + "']").find('.marker.red').length) {
+    				$(".tile[data-position='" + (initialPosition + 9) + "']").children().removeClass('marker');
+    				validPosition = true;
+    			}
+    			if ($(".tile[data-position='" + (initialPosition + 7) + "']").find('.marker.red').length) {
+    				$(".tile[data-position='" + (initialPosition + 7) + "']").children().removeClass('marker');
+    				validPosition = true;
+    			}
+    		}
+    	}
+
+    	return $(tile).hasClass('red') && $(tile).find('.marker').length === 0 && validPosition;
     }
 
     var validMove = function(selectedMarker, tile) {
     	var initialPosition = $(selectedMarker).parent().data('position');
     	var targetPosition = $(tile).data('position');
-    	var validPosition;
+    	var validPosition = false;
 
     	if ($(selectedMarker).hasClass('red') && playerTurn.red) {
     		validPosition = initialPosition - 9 === targetPosition || initialPosition - 7 === targetPosition;

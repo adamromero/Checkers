@@ -119,11 +119,12 @@ var checkers = (function() {
     	var validPosition = false;
 
     	if ($(selectedMarker).hasClass('red')) {
-    		if (initialPosition - (9 * 2) === targetPosition || initialPosition - (7 * 2) === targetPosition) {
-    			if ($(".tile[data-position='" + (initialPosition - 9) + "']").find('.marker.black').length) {
+    		if (initialPosition - (9 * 2) === targetPosition) {
+				if ($(".tile[data-position='" + (initialPosition - 9) + "']").find('.marker.black').length) {
     				$(".tile[data-position='" + (initialPosition - 9) + "']").children().removeClass('marker');
     				validPosition = true;
     			}
+    		} else if (initialPosition - (7 * 2) === targetPosition) {
     			if ($(".tile[data-position='" + (initialPosition - 7) + "']").find('.marker.black').length) {
     				$(".tile[data-position='" + (initialPosition - 7) + "']").children().removeClass('marker');
     				validPosition = true;
@@ -131,11 +132,12 @@ var checkers = (function() {
     		}
     		
     	} else if ($(selectedMarker).hasClass('black')) {
-    		if (initialPosition + (9 * 2) === targetPosition || initialPosition + (7 * 2) === targetPosition) {
+    		if (initialPosition + (9 * 2) === targetPosition) {
     			if ($(".tile[data-position='" + (initialPosition + 9) + "']").find('.marker.red').length) {
     				$(".tile[data-position='" + (initialPosition + 9) + "']").children().removeClass('marker');
     				validPosition = true;
     			}
+    		} else if (initialPosition + (7 * 2) === targetPosition) {
     			if ($(".tile[data-position='" + (initialPosition + 7) + "']").find('.marker.red').length) {
     				$(".tile[data-position='" + (initialPosition + 7) + "']").children().removeClass('marker');
     				validPosition = true;

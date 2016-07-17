@@ -22,15 +22,15 @@ var checkers = (function() {
 
         for (var row = 0; row < ROWS; row++) {
             $row = $("<div class='row'></div>")
-            for (var col = 0; col < COLS; col++) { 
+            for (var col = 0; col < COLS; col++) {
                 var color = ((row % 2 == 0 && col % 2 == 0) || (row % 2 == 1 && col % 2 == 1)) ? 'red' : 'black';
-                $tile = $("<div class='tile " + color + "'></div>"); 
+                $tile = $("<div class='tile " + color + "'></div>");
                 $tile.attr('data-position', positionNumber([row, col]));
-                $row.append($tile);       
+                $row.append($tile);
             }
             $board.append($row);
         }
-    } 
+    }
 
     var placePieces = function() {
     	for (var row = 0; row < ROWS; row++) {
@@ -48,7 +48,7 @@ var checkers = (function() {
     var positionRowCol = function(position) {
     	var row = Math.floor(position / COLS);
     	var col = position % COLS;
-    	return { 
+    	return {
     		row: row,
     		col: col
     	};
@@ -67,49 +67,80 @@ var checkers = (function() {
     }
 
     var move = function() {
-		var selectedMarker;
+  		var selectedMarker;
 
-		$(document).click(function() {
-			$('.selected-tile').removeClass('selected-tile');
-			selectedMarker = undefined;
-		});
+  		$(document).click(function() {
+  			$('.selected-tile').removeClass('selected-tile');
+  			selectedMarker = undefined;
+  		});
 
-		
-		$('.marker').click(function(e) {
-			$(selectedMarker).parent().removeClass('selected-tile');
-			if ($(this).hasClass('red') && playerTurn.red) {
-				selectedMarker = this;
-				$(selectedMarker).parent().addClass('selected-tile');
-			} else if ($(this).hasClass('black') && !playerTurn.red) {
-				selectedMarker = this;
-				$(selectedMarker).parent().addClass('selected-tile');
-			}
-			e.stopPropagation();
-		});
+  		$('.marker').click(function(e) {
+  			$(selectedMarker).parent().removeClass('selected-tile');
+  			if ($(this).hasClass('red') && playerTurn.red) {
+  				selectedMarker = this;
+  				$(selectedMarker).parent().addClass('selected-tile');
+  			} else if ($(this).hasClass('black') && !playerTurn.red) {
+  				selectedMarker = this;
+  				$(selectedMarker).parent().addClass('selected-tile');
+  			}
+  			e.stopPropagation();
+  		});
 
-		$('.tile').click(function() {
-			if (selectedMarker) {
-				if (validMove(selectedMarker, this)) {
-					$(selectedMarker).appendTo(this);
-					$('.selected-tile').removeClass('selected-tile');
-					var position = $(this).data('position');
-					updateBoard(selectedMarker, position);
-					switchPlayer();
-				}
-				if (validAttack(selectedMarker, this)) {
-					console.log("can attack");
-					$(selectedMarker).appendTo(this);
-					switchPlayer();
-				}
-			}
-		});
+  		$('.tile').click(function() {
+  			if (selectedMarker) {
+  				if (validMove(selectedMarker, this)) {
+  					$(selectedMarker).appendTo(this);
+  					$('.selected-tile').removeClass('selected-tile');
+  					var position = $(this).data('position');
+  					updateBoard(selectedMarker, position);
+  					switchPlayer();
+  				}
+
+          var attackIsValid = validAttack(selectedMarker, this);
+          if (attackIsValid) {
+  					$(selectedMarker).appendTo(this);
+  				}
+
+          if (attackIsValid) {
+            handleMultipleJumps(selectedMarker);
+          }
+  			}
+  		});
+    }
+
+    var handleMultipleJumps = function(selectedMarker) {
+        log(selectedMarker);
+        $(selectedMarker).click(function(e) {
+    			$(this).parent().removeClass('selected-tile');
+    			if ($(this).hasClass('red') && playerTurn.red) {
+    				$(selectedMarker).parent().addClass('selected-tile');
+    			} else if ($(this).hasClass('black') && !playerTurn.red) {
+    				$(selectedMarker).parent().addClass('selected-tile');
+    			}
+    			e.stopPropagation();
+    		});
+
+        $('.tile').click(function() {
+          if (selectedMarker) {
+            var attackIsValid = validAttack(selectedMarker, this);
+            if (attackIsValid) {
+              $(selectedMarker).appendTo(this);
+            } else {
+  			      switchPlayer();
+            }
+          }
+        });
+    }
+
+    var log = function(text) {
+      console.log(text);
     }
 
     var switchPlayer = function() {
     	playerTurn.count++;
-		playerTurn.red = (playerTurn.count % 2 == 0) ? true : false;
-		displayMessage("<div class='" + ((playerTurn.red) ? "redfont" : "blackfont") + "'>" 
-			+ ((playerTurn.red) ? "Red's" : "Black's") + " turn.</div>");
+  		playerTurn.red = (playerTurn.count % 2 == 0) ? true : false;
+  		displayMessage("<div class='" + ((playerTurn.red) ? "redfont" : "blackfont") + "'>"
+  			+ ((playerTurn.red) ? "Red's" : "Black's") + " turn.</div>");
     }
 
     var validAttack = function(selectedMarker, tile) {
@@ -130,7 +161,7 @@ var checkers = (function() {
     				validPosition = true;
     			}
     		}
-    		
+
     	} else if ($(selectedMarker).hasClass('black')) {
     		if (initialPosition + (9 * 2) === targetPosition) {
     			if ($(".tile[data-position='" + (initialPosition + 9) + "']").find('.marker.red').length) {
@@ -181,7 +212,7 @@ var checkers = (function() {
     	console.log('gameWon function finished');
     	return !(playerOneLeft && playerTwoLeft);
     }
-    
+
     var positionNumber = function(map) {
     	return map[0] * COLS + map[1];
     }
@@ -192,8 +223,8 @@ var checkers = (function() {
     }
 
     var play = function() {
-    	displayMessage("<div class='redfont'>Red's turn.</div>");
-		move();
+    	  displayMessage("<div class='redfont'>Red's turn.</div>");
+		    move();
     }
 
     return {

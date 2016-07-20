@@ -36,6 +36,12 @@
 	position: absolute;
 	margin: 5px 9px;
 }
+.marker.red.king {
+	background-color: #C3C318;
+}
+.marker.black.king {
+	background-color: #8C4800;
+}
 .selected-tile {
 	background-color: yellow;
 }

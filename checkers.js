@@ -196,20 +196,12 @@ var checkers = (function() {
     }
 
     var gameWon = function() {
-		var playerOneLeft = false,
-            playerTwoLeft = false;
-        for (var row = 0; row < ROWS; row++) {
-            for (var col = 0; col < COLS; col++) {
-                if (map[row][col] === 1) {
-                    playerOneLeft = true;
-                }
-                if (map[row][col] === 2) {
-                    playerTwoLeft = true;
-                }
-            }
+        if (!$('.marker').hasClass('black')) {
+        	return 1;
+        } else if (!$('.marker').hasClass('red')) {
+        	return 2;
         }
-
-        return !(playerOneLeft && playerTwoLeft);
+        return 0;
     }
 
     var positionNumber = function(map) {
@@ -301,9 +293,11 @@ var checkers = (function() {
 
                 kingedPiece(selectedMarker, this);
 
-                //wont work because must update board after attacking piece
-                if (gameWon()) {
-		        	displayMessage("<div class='redfont'>Game over.</div>");
+                //should remove event listeners
+                if (gameWon() === 1) {
+		        	displayMessage("<div class='redfont'>Red wins!</div>");
+		        } else if (gameWon() === 2) {
+		        	displayMessage("<div class='blackfont'>Black wins!</div>");
 		        }
             }
         });
